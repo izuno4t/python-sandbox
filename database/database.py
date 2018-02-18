@@ -4,6 +4,7 @@
 # Python3.xの場合、unicode(row[1],'utf-8') は不要。
 #
 import psycopg2
+import textwrap
 
 try:
     cnn = psycopg2.connect("dbname=sandbox host=localhost user=postgres password=")
@@ -11,15 +12,21 @@ try:
 
     #試験データの整理
     pref_cd = 100
-    cur.execute("""DELETE FROM t01prefecture WHERE PREF_CD >= %s"""
-                , (pref_cd,))
+    sql = textwrap.dedent('''
+    DELETE FROM t01prefecture WHERE PREF_CD >= %s
+    ''').strip()
+
+    cur.execute(sql, (pref_cd,))
     cnn.commit()
 
     print("単純なSELECT文==========================")
     from_id = 45
     to_id = 999
-    cur.execute("""SELECT PREF_CD,PREF_NAME FROM t01prefecture
-                WHERE PREF_CD BETWEEN %s AND %s""" , (from_id, to_id, ))
+    sql = textwrap.dedent('''
+    SELECT PREF_CD,PREF_NAME FROM t01prefecture
+    WHERE PREF_CD BETWEEN %s AND %s
+    ''').strip()
+    cur.execute(sql , (from_id, to_id, ))
     rows = cur.fetchall()
     for row in rows:
         #print("%d %s" % (row[0], unicode(row[1],'utf-8')))
@@ -36,8 +43,12 @@ try:
     cur.execute(u"""INSERT INTO t01prefecture(PREF_CD,PREF_NAME)
                 VALUES (%s, %s)""" , (pref_cd, pref_name,))
     cnn.commit()
-    cur.execute("""SELECT PREF_CD,PREF_NAME FROM t01prefecture
-                WHERE PREF_CD BETWEEN %s AND %s""" , (from_id, to_id, ))
+
+    sql = textwrap.dedent('''
+    SELECT PREF_CD,PREF_NAME FROM t01prefecture
+    WHERE PREF_CD BETWEEN %s AND %s
+    ''').strip()
+    cur.execute(sql, (from_id, to_id, ))
     rows = cur.fetchall()
     for row in rows:
         #print("%d %s" % (row[0],unicode(row[1],'utf-8')))
